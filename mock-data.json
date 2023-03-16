@@ -1,0 +1,27 @@
+{
+  "id": "1",
+  "name": "root",
+  "children": [
+    {
+      "id": "1.1",
+      "name": "Cats",
+      "children": [
+        {
+          "id": "1.1.1",
+          "name": "Black",
+          "children": []
+        },
+        {
+          "id": "1.1.2",
+          "name": "White",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "1.2",
+      "name": "Dogs",
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+.vscode
+elm-stuff
+
+# Build result
+static/main.js
