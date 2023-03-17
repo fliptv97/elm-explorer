@@ -1,27 +1,27 @@
-{
-  "id": "1",
-  "name": "root",
-  "children": [
-    {
-      "id": "1.1",
-      "name": "Cats",
-      "children": [
-        {
-          "id": "1.1.1",
-          "name": "Black",
-          "children": []
-        },
-        {
-          "id": "1.1.2",
-          "name": "White",
-          "children": []
-        }
-      ]
-    },
-    {
-      "id": "1.2",
-      "name": "Dogs",
-      "children": []
-    }
-  ]
-}
+[
+  {
+    "id": "1",
+    "name": "root",
+    "parent": ""
+  },
+  {
+    "id": "1.1",
+    "name": "Cats",
+    "parent": "1"
+  },
+  {
+    "id": "1.1.1",
+    "name": "Black",
+    "parent": "1.1"
+  },
+  {
+    "id": "1.1.2",
+    "name": "White",
+    "parent": "1.1"
+  },
+  {
+    "id": "1.2",
+    "name": "Dogs",
+    "parent": "1"
+  }
+]

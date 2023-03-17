@@ -13,7 +13,7 @@ const sleep = (ms) => async (_ctx, next) => {
 };
 
 router
-  .get("/api/v1/fs", sleep(3000), (ctx) => {
+  .get("/api/v1/files", sleep(3000), (ctx) => {
     ctx.response.body = mockData;
   });
 
