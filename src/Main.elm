@@ -3,6 +3,7 @@ module Main exposing (..)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Http
 import Json.Decode as D
 
@@ -13,92 +14,148 @@ main =
         { init = init
         , update = update
         , subscriptions = \_ -> Sub.none
-        , view = \model -> Browser.Document "Explorer" [ view model ]
+        , view = \model -> Browser.Document "Explorer" (view model)
         }
 
 
+type alias Files =
+    List Node
+
+
 type alias Model =
-    { root : Maybe Node
-    , errorMessage : String
+    { files : Files
+    , activeFile : Maybe Node
+    , errors : List String
     }
 
 
 type alias Node =
     { id : String
     , name : String
+    , parent : String
     , isOpen : Bool
-    , children : Children
     }
 
 
-type Children
-    = Children (List Node)
-
-
 type Msg
-    = Toggle Int
-    | GotFS (Result Http.Error Node)
+    = Toggle String
+    | Open String
+    | GotFS (Result Http.Error (List Node))
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing ""
-    , Http.get { url = "/api/v1/fs", expect = Http.expectJson GotFS fsDecoder }
+    ( { files = [], activeFile = Nothing, errors = [] }
+    , Http.get { url = "/api/v1/files", expect = Http.expectJson GotFS fsDecoder }
     )
 
 
-fsDecoder : D.Decoder Node
+fsDecoder : D.Decoder (List Node)
 fsDecoder =
-    D.map4 Node
-        (D.field "id" D.string)
-        (D.field "name" D.string)
-        (D.succeed False)
-        (D.field "children" <| D.map Children <| D.list <| D.lazy (\_ -> fsDecoder))
+    D.list <|
+        D.map4 Node
+            (D.field "id" D.string)
+            (D.field "name" D.string)
+            (D.field "parent" D.string)
+            (D.succeed False)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Toggle _ ->
-            ( model, Cmd.none )
+        Toggle id ->
+            ( { model | files = toggle model.files id }, Cmd.none )
+
+        Open id ->
+            ( { model | activeFile = find (\file -> file.id == id) model.files }, Cmd.none )
 
         GotFS result ->
             case result of
-                Ok root ->
-                    ( { model | root = Just root }, Cmd.none )
+                Ok files ->
+                    ( { model | files = files }, Cmd.none )
 
                 Err error ->
                     case error of
                         Http.BadBody message ->
-                            ( { model | errorMessage = message }, Cmd.none )
+                            ( { model | errors = model.errors ++ [ message ] }, Cmd.none )
 
                         _ ->
-                            ( model, Cmd.none )
+                            ( { model | errors = model.errors ++ [ "Something went wrong" ] }, Cmd.none )
 
 
-view : Model -> Html Msg
+toggle : Files -> String -> Files
+toggle files id =
+    List.map
+        (\file ->
+            if file.id == id then
+                { file | isOpen = not file.isOpen }
+
+            else
+                file
+        )
+        files
+
+
+find : (a -> Bool) -> List a -> Maybe a
+find predicate list =
+    List.head (List.filter predicate list)
+
+
+view : Model -> List (Html Msg)
 view model =
-    div [ class "container" ]
+    [ div [ class "notifications" ] <|
+        List.map (\notification -> div [ class "notification" ] [ text notification ]) model.errors
+    , div [ class "container" ]
         [ div [ class "explorer" ]
-            [ div [ class "loader", classList [ ( "loader--visible", isNothing model.root ) ] ]
+            [ div [ class "loader", classList [ ( "loader--visible", List.isEmpty model.files ) ] ]
                 [ img [ src "loader.svg", alt "", class "loader__icon" ] [] ]
             , div [ class "explorer__header" ]
                 [ text ""
                 , input [ placeholder "Search" ] []
                 ]
             , div [ class "explorer__sidebar" ]
-                [ text "" ]
+                [ viewTree model.files "root" ]
             , div [ class "explorer__content" ]
-                [ pre [] [ text model.errorMessage ] ]
+                [ text "" ]
             ]
         ]
+    ]
 
 
-isNothing : Maybe a -> Bool
-isNothing value =
-    case value of
-        Nothing ->
-            True
+viewTree : Files -> String -> Html Msg
+viewTree files parent =
+    ul [] <|
+        List.map
+            (\file ->
+                let
+                    childrenFiles =
+                        children files file.id
 
-        Just _ ->
-            False
+                    listener =
+                        if List.isEmpty childrenFiles then
+                            stopPropagationOn "click" (D.succeed ( Open file.id, True ))
+
+                        else
+                            stopPropagationOn "click" (D.succeed ( Toggle file.id, True ))
+                in
+                li
+                    [ classList
+                        [ ( "is-opened", file.isOpen )
+                        , ( "toggleable", not (List.isEmpty childrenFiles) )
+                        ]
+                    , listener
+                    ]
+                    [ text file.name
+                    , if List.isEmpty childrenFiles || not file.isOpen then
+                        text ""
+
+                      else
+                        viewTree childrenFiles file.id
+                    ]
+            )
+            (children files parent)
+
+
+children : Files -> String -> Files
+children files parent =
+    List.filter (\file -> file.parent == parent) files
