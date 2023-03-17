@@ -1,27 +1,22 @@
 [
   {
     "id": "1",
-    "name": "root",
-    "parent": ""
+    "name": "Cats",
+    "parent": "root"
   },
   {
     "id": "1.1",
-    "name": "Cats",
-    "parent": "1"
-  },
-  {
-    "id": "1.1.1",
     "name": "Black",
-    "parent": "1.1"
-  },
-  {
-    "id": "1.1.2",
-    "name": "White",
-    "parent": "1.1"
+    "parent": "1"
   },
   {
     "id": "1.2",
-    "name": "Dogs",
+    "name": "White",
     "parent": "1"
+  },
+  {
+    "id": "2",
+    "name": "Dogs",
+    "parent": "root"
   }
 ]
