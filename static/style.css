@@ -140,3 +140,22 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.file-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-preview__image {
+  border: 1px solid rgb(240, 240, 240);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, .10);
+}
+
+/* Debug */
+.debug {
+  margin-block: 6px;
+  padding: 6px;
+  color: #fdfdfd;
+  background-color: #191919;
+}

@@ -1,22 +1,46 @@
 [
   {
     "id": "1",
-    "name": "Cats",
+    "name": "Pets",
     "parent": "root"
   },
   {
     "id": "1.1",
-    "name": "Black",
+    "name": "Cats",
     "parent": "1"
+  },
+  {
+    "id": "1.1.1",
+    "name": "Siamese cat",
+    "parent": "1.1",
+    "data": "/img/siamese-cat.jpg"
+  },
+  {
+    "id": "1.1.2",
+    "name": "British Shorthair",
+    "parent": "1.1",
+    "data": "/img/british-shorthair.jpg"
+  },
+  {
+    "id": "1.1.3",
+    "name": "Sphynx cat",
+    "parent": "1.1",
+    "data": "/img/sphynx-cat.jpg"
+  },
+  {
+    "id": "1.1.4",
+    "name": "Persian cat",
+    "parent": "1.1",
+    "data": "/img/persian-cat.jpg"
   },
   {
     "id": "1.2",
-    "name": "White",
+    "name": "Dogs",
     "parent": "1"
   },
   {
-    "id": "2",
-    "name": "Dogs",
-    "parent": "root"
+    "id": "1.2.1",
+    "name": "Something",
+    "parent": "1.2"
   }
 ]

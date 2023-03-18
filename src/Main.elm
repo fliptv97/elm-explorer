@@ -18,21 +18,18 @@ main =
         }
 
 
-type alias Files =
-    List Node
-
-
 type alias Model =
-    { files : Files
-    , activeFile : Maybe Node
+    { files : List File
+    , activeFile : Maybe File
     , errors : List String
     }
 
 
-type alias Node =
+type alias File =
     { id : String
     , name : String
     , parent : String
+    , data : Maybe String
     , isOpen : Bool
     }
 
@@ -40,7 +37,7 @@ type alias Node =
 type Msg
     = Toggle String
     | Open String
-    | GotFS (Result Http.Error (List Node))
+    | GotFS (Result Http.Error (List File))
 
 
 init : () -> ( Model, Cmd Msg )
@@ -50,13 +47,14 @@ init _ =
     )
 
 
-fsDecoder : D.Decoder (List Node)
+fsDecoder : D.Decoder (List File)
 fsDecoder =
     D.list <|
-        D.map4 Node
+        D.map5 File
             (D.field "id" D.string)
             (D.field "name" D.string)
             (D.field "parent" D.string)
+            (D.maybe (D.field "data" D.string))
             (D.succeed False)
 
 
@@ -83,7 +81,7 @@ update msg model =
                             ( { model | errors = model.errors ++ [ "Something went wrong" ] }, Cmd.none )
 
 
-toggle : Files -> String -> Files
+toggle : List File -> String -> List File
 toggle files id =
     List.map
         (\file ->
@@ -116,13 +114,13 @@ view model =
             , div [ class "explorer__sidebar" ]
                 [ viewTree model.files "root" ]
             , div [ class "explorer__content" ]
-                [ text "" ]
+                [ viewFile model.activeFile ]
             ]
         ]
     ]
 
 
-viewTree : Files -> String -> Html Msg
+viewTree : List File -> String -> Html Msg
 viewTree files parent =
     ul [] <|
         List.map
@@ -145,17 +143,42 @@ viewTree files parent =
                         ]
                     , listener
                     ]
-                    [ text file.name
+                    [ text ("<" ++ file.id ++ "> " ++ file.name)
                     , if List.isEmpty childrenFiles || not file.isOpen then
                         text ""
 
                       else
-                        viewTree childrenFiles file.id
+                        viewTree files file.id
                     ]
             )
             (children files parent)
 
 
-children : Files -> String -> Files
+viewFile : Maybe File -> Html Msg
+viewFile file =
+    div [ class "file-preview" ]
+        (case file of
+            Nothing ->
+                [ text "Select a file" ]
+
+            Just file_ ->
+                case file_.data of
+                    Nothing ->
+                        [ text "Empty file" ]
+
+                    Just content ->
+                        [ img
+                            [ src content
+                            , alt file_.name
+                            , class "file-preview__image"
+                            , width 200
+                            , height 200
+                            ]
+                            []
+                        ]
+        )
+
+
+children : List File -> String -> List File
 children files parent =
     List.filter (\file -> file.parent == parent) files
