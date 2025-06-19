@@ -1,2 +1,2 @@
 #! /bin/bash
-elm make src/Main.elm --optimize --output static/main.js
+elm make src/Main.elm --output static/main.js
