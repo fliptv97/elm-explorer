@@ -1,6 +1,6 @@
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 
-import mockData from "./mock-data.json" assert { type: "json" }
+import mockData from "./mock-data.json" with { type: "json" }
 
 const router = new Router();
 
