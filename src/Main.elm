@@ -143,7 +143,7 @@ viewTree files parent =
                         ]
                     , listener
                     ]
-                    [ text ("<" ++ file.id ++ "> " ++ file.name)
+                    [ text file.name
                     , if List.isEmpty childrenFiles || not file.isOpen then
                         text ""
 
