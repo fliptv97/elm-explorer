@@ -1,5 +1,6 @@
 .vscode
 elm-stuff
+.DS_Store
 
 # Build result
 static/main.js
